@@ -1,5 +1,8 @@
 package lambda.part1.exercise;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import data.Person;
 import org.junit.Test;
@@ -10,6 +13,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class Lambdas01Exercise {
 
@@ -21,13 +25,18 @@ public class Lambdas01Exercise {
                 new Person("name 2", "lastName 1", 30)
         };
 
-        // TODO use Arrays.sort
+        Arrays.sort(persons, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return Integer.valueOf(o1.getAge()).compareTo(o2.getAge());
+            }
+        });
 
-        assertArrayEquals(persons, new Person[]{
+        assertArrayEquals(new Person[]{
                 new Person("name 3", "lastName 3", 20),
                 new Person("name 2", "lastName 1", 30),
                 new Person("name 1", "lastName 2", 40),
-        });
+        }, persons);
     }
 
     @Test
@@ -38,10 +47,20 @@ public class Lambdas01Exercise {
                 new Person("name 2", "lastName 1", 30)
         );
 
-        Person person = null;
+        final Optional<Person> personOptional =
+                FluentIterable.from(persons)
+                        .firstMatch(new Predicate<Person>() {
+                            @Override
+                            public boolean apply(Person p) {
+                                return p.getAge() == 30;
+                            }
+                        });
 
-        // TODO use FluentIterable
+        if (personOptional.isPresent()) {
+            personOptional.get().print();
+        }
 
-        assertEquals(person, new Person("name 1", "lastName 2", 30));
+        assertNotNull(personOptional.get());
+        assertEquals(new Person("name 1", "lastName 2", 30), personOptional.get());
     }
 }

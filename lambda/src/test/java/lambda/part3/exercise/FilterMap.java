@@ -89,16 +89,6 @@ public class FilterMap {
     @Test
     public void test() {
         List<Integer> integers = Arrays.asList(1, 2, 100, 110, 200, 300, 500);
-
-
-//        LazyCollectionHelper<Integer> lazy = new LazyCollectionHelper<>(integers);
-//        LazyCollectionHelper<Integer> lazy2 = lazy.filter(val -> val != 0);
-//        LazyCollectionHelper<Integer> lazy3 = lazy2.filter(val -> val < 0);
-//        LazyCollectionHelper<Double> lazy4 = lazy3.map(Double::valueOf);
-//
-//        List<Double> lazyResult = lazy4.force();
-
-
         List<String> result = new LazyCollectionHelper<>(integers).filter(val -> val > 10)
                                                                   .filter(val -> val < 400)
                                                                   .map(Object::toString)
