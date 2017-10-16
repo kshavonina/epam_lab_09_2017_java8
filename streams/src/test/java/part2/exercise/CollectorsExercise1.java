@@ -6,6 +6,7 @@ import data.Person;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CollectorsExercise1 {
 
@@ -37,7 +38,8 @@ public class CollectorsExercise1 {
     // "epam" -> "Alex Ivanov 23, Semen Popugaev 25, Ivan Ivanov 33"
     @Test
     public void getEmployeesByEmployer() {
-        Map<String, String> result = null;
+        Map<String, String> result = getEmployees().stream()
+                .collect(Collectors.groupingBy());
 
     }
 
@@ -48,6 +50,8 @@ public class CollectorsExercise1 {
         coolestByPosition.forEach((position, person) -> System.out.println(position + " -> " + person));
     }
 
+    // просуммировать все места где он работал на определенной позиции и вернуть человека кот больше всего
+    // проработал на этой позиции
     private Map<String, Person> getCoolestByPosition(List<Employee> employees) {
         // First option
         // Collectors.maxBy
