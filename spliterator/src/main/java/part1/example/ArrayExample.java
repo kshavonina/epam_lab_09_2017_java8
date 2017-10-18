@@ -31,7 +31,13 @@ public class ArrayExample {
 
         @Override
         public boolean tryAdvance(IntConsumer action) {
-            return false;
+            if (startInclusive >= endExclusive) {
+                return false;
+            }
+
+            action.accept(array[startInclusive]);
+            startInclusive++;
+            return true;
         }
 
         @Override

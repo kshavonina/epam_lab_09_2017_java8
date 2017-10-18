@@ -38,8 +38,8 @@ public class CollectorsExercise1 {
     // "epam" -> "Alex Ivanov 23, Semen Popugaev 25, Ivan Ivanov 33"
     @Test
     public void getEmployeesByEmployer() {
-        Map<String, String> result = getEmployees().stream()
-                .collect(Collectors.groupingBy());
+        //Map<String, String> result = getEmployees().stream()
+                //.collect(Collectors.groupingBy());
 
     }
 

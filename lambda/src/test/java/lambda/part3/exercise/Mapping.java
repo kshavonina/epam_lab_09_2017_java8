@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 
@@ -82,7 +83,17 @@ public class Mapping {
                 Заменить все qa на QA
                 */
 
-        List<Employee> expectedResult = Arrays.asList(
+        List<Employee> expectedResult = getEmployee();
+
+        assertEquals(mappedEmployees, expectedResult);
+    }
+
+    private List<Employee> getEmployee() {
+        return getEmployees();
+    }
+
+    private List<Employee> getEmployees() {
+        return Arrays.asList(
             new Employee(new Person("John", "Galt", 30),
                 Arrays.asList(
                         new JobHistoryEntry(3, "dev", "epam"),
@@ -99,8 +110,6 @@ public class Mapping {
                         new JobHistoryEntry(6, "QA", "epam")
                 ))
         );
-
-        assertEquals(mappedEmployees, expectedResult);
     }
 
     private static class LazyMapHelper<T, R> {
@@ -126,6 +135,50 @@ public class Mapping {
     }
 
     // TODO * LazyFlatMapHelper
+
+    private static class LazyFlatMapHelper<T, R> {
+        private final List<T> list;
+        private final Function<T, List<R>> mapper;
+
+        public LazyFlatMapHelper(List<T> list, Function<T, List<R>> mapper) {
+            this.list = list;
+            this.mapper = mapper;
+        }
+
+        public static <T> LazyFlatMapHelper<T, T> from(List<T> list) {
+            return new LazyFlatMapHelper<>(list, Collections::singletonList);
+        }
+
+        public <U> LazyFlatMapHelper<T, U> flatMap(Function<R, List<U>> remapper) {
+            return new LazyFlatMapHelper<>(list, mapper.andThen(result -> result.stream()
+                                    .flatMap(element -> remapper.apply(element).stream())
+                                    .collect(Collectors.toList())));
+        }
+
+        public List<R> force() {
+           ArrayList<R> result = new ArrayList<>();
+           for (T value : list) {
+               result.addAll(mapper.apply(value));
+           }
+           return result;
+        }
+    }
+
+    @Test
+    public void lazyFlatMapping() {
+        /*List<Employee> employees = getEmployees();
+        List<JobHistoryEntry> force = LazyMapHelper.from(employees)
+                .flatMap(Employee::getJobHistory)
+                .force();
+
+        LazyMapHelper.from(employees)
+                .flatMap(Employee::getJobHistory)
+                .flatMap(entry -> entry.getPosition()
+                        .chars()
+                        .mapToObj(sym -> (char) sym)
+                        .collect(Collectors.toList()));*/
+
+    }
 
     @Test
     public void lazyMapping() {
@@ -161,23 +214,7 @@ public class Mapping {
                 Заменить все qu на QA
                 */
 
-        List<Employee> expectedResult = Arrays.asList(
-            new Employee(new Person("John", "Galt", 30),
-                Arrays.asList(
-                        new JobHistoryEntry(3, "dev", "epam"),
-                        new JobHistoryEntry(2, "dev", "google")
-                )),
-            new Employee(new Person("John", "Doe", 40),
-                Arrays.asList(
-                        new JobHistoryEntry(4, "QA", "yandex"),
-                        new JobHistoryEntry(2, "QA", "epam"),
-                        new JobHistoryEntry(2, "dev", "abc")
-                )),
-            new Employee(new Person("John", "White", 50),
-                Collections.singletonList(
-                        new JobHistoryEntry(6, "QA", "epam")
-                ))
-        );
+        List<Employee> expectedResult = getEmployee();
 
         assertEquals(mappedEmployees, expectedResult);
     }
