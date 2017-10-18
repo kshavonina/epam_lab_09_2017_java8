@@ -1,30 +1,26 @@
 package part1.exercise;
 
-
-import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.IntConsumer;
 
 public class RectangleSpliterator extends Spliterators.AbstractIntSpliterator {
 
-    private final int innerLength;
     private final int[][] array;
-    private final int startOuterInclusive;
-    private final int endOuterExclusive;
-    private final int startInnerInclusive;
 
     public RectangleSpliterator(int[][] array) {
-        this(array, 0, array.length, 0);
+        super(checkArrayAndCalcEstimatedSize(array), 0);       // TODO заменить
+//       super(estimatedSize, Spliterator.IMMUTABLE
+//                          | Spliterator.ORDERED
+//                          | Spliterator.SIZED
+//                          | Spliterator.SUBSIZED
+//                          | Spliterator.NONNULL);
+        this.array = array;
     }
 
-    private RectangleSpliterator(int[][] array, int startOuterInclusive, int endOuterExclusive, int startInnerInclusive) {
-        super(Long.MAX_VALUE, Spliterator.IMMUTABLE | Spliterator.ORDERED | Spliterator.SIZED | Spliterator.SUBSIZED | Spliterator.NONNULL);
+    private static long checkArrayAndCalcEstimatedSize(int[][] array) {
+        // TODO
 
-        innerLength = array.length == 0 ? 0 : array[0].length;
-        this.array = array;
-        this.startOuterInclusive = startOuterInclusive;
-        this.endOuterExclusive = endOuterExclusive;
-        this.startInnerInclusive = startInnerInclusive;
+        return array.length * array[0].length;
     }
 
     @Override
@@ -35,12 +31,42 @@ public class RectangleSpliterator extends Spliterators.AbstractIntSpliterator {
 
     @Override
     public long estimateSize() {
-        return ((long) endOuterExclusive - startOuterInclusive)*innerLength - startInnerInclusive;
+        // TODO
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public boolean tryAdvance(IntConsumer action) {
         // TODO
         throw new UnsupportedOperationException();
+    }
+
+
+}
+
+
+class A {
+
+    protected String val;
+
+    A() {
+        setVal();
+    }
+
+    public void setVal() {
+        val = "A";
+    }
+}
+
+class B extends A {
+
+    @Override
+    public void setVal() {
+        val = "B";
+    }
+
+    public static void main(String[] args) {
+        System.out.println(new B().val);
+
     }
 }
