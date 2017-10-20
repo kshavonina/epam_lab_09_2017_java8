@@ -76,26 +76,6 @@ public class Mapping {
         return getEmployees();
     }
 
-    private List<Employee> getEmployees() {
-        return Arrays.asList(
-            new Employee(new Person("John", "Galt", 30),
-                Arrays.asList(
-                        new JobHistoryEntry(3, "dev", "epam"),
-                        new JobHistoryEntry(2, "dev", "google")
-                )),
-            new Employee(new Person("John", "Doe", 40),
-                Arrays.asList(
-                        new JobHistoryEntry(4, "QA", "yandex"),
-                        new JobHistoryEntry(2, "QA", "epam"),
-                        new JobHistoryEntry(2, "dev", "abc")
-                )),
-            new Employee(new Person("John", "White", 50),
-                Collections.singletonList(
-                        new JobHistoryEntry(6, "QA", "epam")
-                ))
-        );
-    }
-
     private static class LazyMapHelper<T, R> {
         private final List<T> list;
         private final Function<T, R> function;
@@ -134,6 +114,9 @@ public class Mapping {
 
         public <U> LazyFlatMapHelper<T, U> flatMap(Function<R, List<U>> remapper) {
             return new LazyFlatMapHelper<>(list, mapper.andThen(result -> force(result, remapper)));
+            /*return new LazyFlatMapHelper<>(list, mapper.andThen(result -> result.stream()
+                    .flatMap(element -> remapper.apply(element).stream())
+                    .collect(Collectors.toList())));*/
         }
 
         public List<R> force() {
@@ -164,50 +147,6 @@ public class Mapping {
 
 
         System.out.println();
-
-    }
-
-    private static class LazyFlatMapHelper<T, R> {
-        private final List<T> list;
-        private final Function<T, List<R>> mapper;
-
-        public LazyFlatMapHelper(List<T> list, Function<T, List<R>> mapper) {
-            this.list = list;
-            this.mapper = mapper;
-        }
-
-        public static <T> LazyFlatMapHelper<T, T> from(List<T> list) {
-            return new LazyFlatMapHelper<>(list, Collections::singletonList);
-        }
-
-        public <U> LazyFlatMapHelper<T, U> flatMap(Function<R, List<U>> remapper) {
-            return new LazyFlatMapHelper<>(list, mapper.andThen(result -> result.stream()
-                                    .flatMap(element -> remapper.apply(element).stream())
-                                    .collect(Collectors.toList())));
-        }
-
-        public List<R> force() {
-           ArrayList<R> result = new ArrayList<>();
-           for (T value : list) {
-               result.addAll(mapper.apply(value));
-           }
-           return result;
-        }
-    }
-
-    @Test
-    public void lazyFlatMapping() {
-        /*List<Employee> employees = getEmployees();
-        List<JobHistoryEntry> force = LazyMapHelper.from(employees)
-                .flatMap(Employee::getJobHistory)
-                .force();
-
-        LazyMapHelper.from(employees)
-                .flatMap(Employee::getJobHistory)
-                .flatMap(entry -> entry.getPosition()
-                        .chars()
-                        .mapToObj(sym -> (char) sym)
-                        .collect(Collectors.toList()));*/
 
     }
 
