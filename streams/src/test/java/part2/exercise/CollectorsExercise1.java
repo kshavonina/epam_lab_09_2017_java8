@@ -38,9 +38,12 @@ public class CollectorsExercise1 {
     // "epam" -> "Alex Ivanov 23, Semen Popugaev 25, Ivan Ivanov 33"
     @Test
     public void getEmployeesByEmployer() {
-        //Map<String, String> result = getEmployees().stream()
-                //.collect(Collectors.groupingBy());
-
+        Map<String, String> result = getEmployees().stream()
+                .flatMap(employee -> employee.getJobHistory().stream()
+                        .map(JobHistoryEntry::getEmployer)
+                        .map(employer -> new AbstractMap.SimpleEntry<>(employer, employee.getPerson().toString())))
+                .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey, Collectors.mapping(Map.Entry::getValue,
+                        Collectors.joining(", "))));
     }
 
     @Test
@@ -53,6 +56,25 @@ public class CollectorsExercise1 {
     // просуммировать все места где он работал на определенной позиции и вернуть человека кот больше всего
     // проработал на этой позиции
     private Map<String, Person> getCoolestByPosition(List<Employee> employees) {
+        Map<String, Set<Employee>> positionToEmployees = employees.stream()
+                .flatMap(employee -> employee.getJobHistory().stream()
+                        .map(JobHistoryEntry::getPosition)
+                        .map(position -> new AbstractMap.SimpleEntry<>(position, employee)))
+                .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey, Collectors.mapping(Map.Entry::getValue,
+                        Collectors.toSet())));
+
+        Map<String, Person> result = positionToEmployees.entrySet().stream()
+                .map(entry ->
+                        new AbstractMap.SimpleEntry<>(entry.getKey(), entry.getValue().stream()
+                                .map(employee -> new AbstractMap.SimpleEntry<>(employee.getPerson(), employee.getJobHistory().stream()
+                                        .filter(o -> entry.getKey().equals(o.getPosition()))
+                                        .mapToInt(o -> o.getDuration())
+                                        .sum())) //set of pairs Person-Duration on required position
+                                .reduce((e1, e2) -> e1.getValue() > e2.getValue() ? e1 : e2) // one pair Person-MaxDuration
+                                .map(e -> e.getKey())))// Person with max duration
+                .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue().get()));
+
+        return result;
         // First option
         // Collectors.maxBy
         // Collectors.collectingAndThen
@@ -61,8 +83,6 @@ public class CollectorsExercise1 {
         // Second option
         // Collectors.toMap
         // iterate twice: stream...collect(...).stream()...
-        // TODO
-        throw new UnsupportedOperationException();
     }
 
     private List<Employee> getEmployees() {
