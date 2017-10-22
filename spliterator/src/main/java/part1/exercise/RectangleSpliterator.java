@@ -1,47 +1,68 @@
 package part1.exercise;
 
+import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.IntConsumer;
 
 public class RectangleSpliterator extends Spliterators.AbstractIntSpliterator {
-
     private final int[][] array;
+    private final int endExclusive;
+    private int startInclusive;
+
+    private RectangleSpliterator(int[][] array, int startInclusive, int endExclusive) {
+        super(endExclusive - startInclusive,
+                Spliterator.IMMUTABLE
+                        | Spliterator.ORDERED
+                        | Spliterator.SIZED
+                        | Spliterator.SUBSIZED
+                        | Spliterator.NONNULL);
+        this.array = array;
+        this.startInclusive = startInclusive;
+        this.endExclusive = endExclusive;
+    }
 
     public RectangleSpliterator(int[][] array) {
-        super(checkArrayAndCalcEstimatedSize(array), 0);       // TODO заменить
-//       super(estimatedSize, Spliterator.IMMUTABLE
-//                          | Spliterator.ORDERED
-//                          | Spliterator.SIZED
-//                          | Spliterator.SUBSIZED
-//                          | Spliterator.NONNULL);
-        this.array = array;
+        this(array, 0, array.length);
     }
 
     private static long checkArrayAndCalcEstimatedSize(int[][] array) {
-        // TODO
+        for (int i = 1; i < array.length; i++) {
+            if (array[i].length != array[0].length) {
+                throw new IllegalStateException("Array is not recrangular");
+            }
+        }
 
         return array.length * array[0].length;
     }
 
     @Override
     public OfInt trySplit() {
-        // TODO
-        throw new UnsupportedOperationException();
+        int length = endExclusive - startInclusive;
+
+        if (length < 2) {
+            return null;
+        }
+
+        RectangleSpliterator result = new RectangleSpliterator(array, startInclusive, startInclusive += length / 2);
+
+        return result;
     }
 
     @Override
     public long estimateSize() {
-        // TODO
-        throw new UnsupportedOperationException();
+        return endExclusive - startInclusive;
     }
 
     @Override
     public boolean tryAdvance(IntConsumer action) {
-        // TODO
-        throw new UnsupportedOperationException();
+        if (startInclusive < endExclusive) {
+            action.accept(array[startInclusive / array[0].length][startInclusive % array[0].length]);
+            startInclusive++;
+            return true;
+        }
+
+        return false;
     }
-
-
 }
 
 
